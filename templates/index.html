@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Buddy</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="logo-container">
+      <!-- Simple and bold SVG logo -->
+      <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Thin-lined gold square outline -->
+        <rect x="25" y="25" width="50" height="50" rx="4" fill="none" stroke="var(--accent-color)" stroke-width="1.5"/>
+        
+        <!-- Bold serif letter S in cream -->
+        <text x="50" y="53" dominant-baseline="middle" text-anchor="middle" font-family="var(--font-serif)" font-weight="700" font-size="32" fill="var(--text-primary)">S</text>
+      </svg>
+      <div class="logo-text">StudyBuddy</div>
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item active" id="nav-quiz">
+        <button onclick="switchTab('quiz')">
+          <!-- Line-art checklist icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          Quiz Generator
+          <span class="icon-dot"></span>
+        </button>
+      </li>
+      <li class="nav-item" id="nav-flashcards">
+        <button onclick="switchTab('flashcards')">
+          <!-- Line-art card stack icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="9" y1="9" x2="15" y2="9"/>
+            <line x1="9" y1="13" x2="15" y2="13"/>
+            <line x1="9" y1="17" x2="13" y2="17"/>
+          </svg>
+          Flashcards
+          <span class="icon-dot"></span>
+        </button>
+      </li>
+      <li class="nav-item" id="nav-doubts">
+        <button onclick="switchTab('doubts')">
+          <!-- Line-art question comment bubble icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12" y2="17" stroke-width="2"/>
+          </svg>
+          Ask a Doubt
+          <span class="icon-dot"></span>
+        </button>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Panel -->
+  <main class="main-content">
+    
+    <!-- 1. QUIZ GENERATOR SECTION -->
+    <section id="section-quiz" class="content-section">
+      <div class="section-header">
+        <h1>Quiz Generator</h1>
+        <p>Upload study notes to automatically generate a custom quiz with question-answer pairs.</p>
+      </div>
+
+      <form id="form-quiz" onsubmit="handleFormSubmit(event, '/generate-quiz', 'quiz')">
+        <!-- Drag and drop card styled file selector -->
+        <div class="upload-card" onclick="document.getElementById('file-quiz').click()">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text">Click to upload notes</div>
+          <div class="upload-subtext">Supports PDF or DOCX up to 16MB</div>
+          <input type="file" id="file-quiz" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'quiz')">
+        </div>
+        
+        <!-- File feedback -->
+        <div id="file-info-quiz" class="file-info-bar" style="display: none;">
+          <span class="file-info-name" id="filename-quiz"></span>
+          <button type="button" class="remove-file-btn" onclick="clearFile('quiz')">Remove</button>
+        </div>
+
+        <button type="submit" class="submit-btn" id="btn-quiz" style="margin-top: 1.5rem;">
+          Generate Quiz
+        </button>
+      </form>
+
+      <!-- Loading and Error UI -->
+      <div id="loading-quiz" class="loading-indicator">
+        <div class="spinner"></div>
+        <span>Generating your quiz... Please wait.</span>
+      </div>
+      <div id="error-quiz" class="alert"></div>
+
+      <!-- Quiz Results -->
+      <div id="result-quiz" class="result-card">
+        <div class="result-header">Generated Quiz</div>
+        <div class="quiz-list" id="quiz-list-container">
+          <!-- Dynamic quiz items go here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. FLASHCARDS SECTION -->
+    <section id="section-flashcards" class="content-section hidden">
+      <div class="section-header">
+        <h1>Flashcards Generator</h1>
+        <p>Turn your files into dynamic front-and-back study cards to quickly review concepts.</p>
+      </div>
+
+      <form id="form-flashcards" onsubmit="handleFormSubmit(event, '/generate-flashcards', 'flashcards')">
+        <div class="upload-card" onclick="document.getElementById('file-flashcards').click()">
+          <div class="upload-icon">🎴</div>
+          <div class="upload-text">Click to upload notes</div>
+          <div class="upload-subtext">Supports PDF or DOCX up to 16MB</div>
+          <input type="file" id="file-flashcards" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'flashcards')">
+        </div>
+        
+        <div id="file-info-flashcards" class="file-info-bar" style="display: none;">
+          <span class="file-info-name" id="filename-flashcards"></span>
+          <button type="button" class="remove-file-btn" onclick="clearFile('flashcards')">Remove</button>
+        </div>
+
+        <button type="submit" class="submit-btn" id="btn-flashcards" style="margin-top: 1.5rem;">
+          Generate Flashcards
+        </button>
+      </form>
+
+      <!-- Loading and Error UI -->
+      <div id="loading-flashcards" class="loading-indicator">
+        <div class="spinner"></div>
+        <span>Generating your flashcards... Please wait.</span>
+      </div>
+      <div id="error-flashcards" class="alert"></div>
+
+      <!-- Flashcards Results -->
+      <div id="result-flashcards" class="result-card">
+        <div class="result-header" style="text-align: center;">Study Flashcards</div>
+        <div class="flashcards-container">
+          <div class="flashcard-view" id="flashcard-view" onclick="toggleCardFlip()">
+            <div class="flashcard">
+              <div class="flashcard-front">
+                <span class="flashcard-badge">Front Side</span>
+                <p class="flashcard-content" id="flashcard-front-content">Flashcard Front Text</p>
+              </div>
+              <div class="flashcard-back">
+                <span class="flashcard-badge">Back Side</span>
+                <p class="flashcard-content" id="flashcard-back-content">Flashcard Back Text</p>
+              </div>
+            </div>
+          </div>
+          <div class="flashcards-controls">
+            <span class="card-counter" id="card-counter">Card 0 of 0</span>
+            <button type="button" class="flashcards-nav-btn" id="btn-prev-card">Prev</button>
+            <button type="button" class="flashcards-nav-btn" id="btn-next-card">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ASK A DOUBT SECTION -->
+    <section id="section-doubts" class="content-section hidden">
+      <div class="section-header">
+        <h1>Ask a Doubt</h1>
+        <p>Ask questions and get answers grounded strictly in the contents of your uploaded notes.</p>
+      </div>
+
+      <form id="form-doubts" onsubmit="handleFormSubmit(event, '/ask-doubt', 'doubts')">
+        <div class="upload-card" onclick="document.getElementById('file-doubts').click()">
+          <div class="upload-icon">🙋</div>
+          <div class="upload-text">Click to upload reference notes</div>
+          <div class="upload-subtext">Supports PDF or DOCX up to 16MB</div>
+          <input type="file" id="file-doubts" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'doubts')">
+        </div>
+        
+        <div id="file-info-doubts" class="file-info-bar" style="display: none;">
+          <span class="file-info-name" id="filename-doubts"></span>
+          <button type="button" class="remove-file-btn" onclick="clearFile('doubts')">Remove</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+          <label for="doubt-input" style="font-weight: 500; font-size: 0.95rem; color: var(--text-secondary);">Your Doubt / Question:</label>
+          <input type="text" id="doubt-input" name="doubt" class="text-input" placeholder="e.g. What is the main thesis of chapter 3?" required>
+        </div>
+
+        <button type="submit" class="submit-btn" id="btn-doubts" style="margin-top: 1.5rem;">
+          Ask AI Buddy
+        </button>
+      </form>
+
+      <!-- Loading and Error UI -->
+      <div id="loading-doubts" class="loading-indicator">
+        <div class="spinner"></div>
+        <span>Searching notes and generating answer...</span>
+      </div>
+      <div id="error-doubts" class="alert"></div>
+
+      <!-- Doubt Results -->
+      <div id="result-doubts" class="result-card">
+        <div class="result-header">AI Answer</div>
+        <div class="doubt-answer-text" id="doubt-answer-content">
+          <!-- Answer goes here -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Tab switching logic (no page reload)
+    function switchTab(tabId) {
+      // Toggle nav menu selection styles
+      document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.getElementById(`nav-${tabId}`).classList.add('active');
+
+      // Toggle sections visibility
+      document.querySelectorAll('.content-section').forEach(sec => {
+        if (sec.id === `section-${tabId}`) {
+          sec.classList.remove('hidden');
+        } else {
+          sec.classList.add('hidden');
+        }
+      });
+    }
+
+    // Handles file selection and shows file info bar
+    function handleFileSelect(input, section) {
+      const fileInfoBar = document.getElementById(`file-info-${section}`);
+      const filenameSpan = document.getElementById(`filename-${section}`);
+      
+      if (input.files && input.files[0]) {
+        filenameSpan.textContent = input.files[0].name;
+        fileInfoBar.style.display = 'flex';
+      } else {
+        clearFile(section);
+      }
+    }
+
+    // Clears file input and hides file info bar
+    function clearFile(section) {
+      const input = document.getElementById(`file-${section}`);
+      const fileInfoBar = document.getElementById(`file-info-${section}`);
+      const filenameSpan = document.getElementById(`filename-${section}`);
+      
+      input.value = '';
+      filenameSpan.textContent = '';
+      fileInfoBar.style.display = 'none';
+    }
+
+    // Flashcard deck variables
+    let flashcardsData = [];
+    let currentCardIndex = 0;
+
+    function toggleCardFlip() {
+      const cardView = document.getElementById('flashcard-view');
+      cardView.classList.toggle('flipped');
+    }
+
+    function renderFlashcard() {
+      if (flashcardsData.length === 0) return;
+      
+      // Remove flip animation classes and reset to front side
+      const cardView = document.getElementById('flashcard-view');
+      cardView.classList.remove('flipped');
+      
+      const frontContent = document.getElementById('flashcard-front-content');
+      const backContent = document.getElementById('flashcard-back-content');
+      const cardCounter = document.getElementById('card-counter');
+      
+      const currentCard = flashcardsData[currentCardIndex];
+      frontContent.textContent = currentCard.front;
+      backContent.textContent = currentCard.back;
+      
+      cardCounter.textContent = `Card ${currentCardIndex + 1} of ${flashcardsData.length}`;
+      
+      // Handle button states
+      document.getElementById('btn-prev-card').disabled = currentCardIndex === 0;
+      document.getElementById('btn-next-card').disabled = currentCardIndex === flashcardsData.length - 1;
+    }
+
+    function nextCard() {
+      if (currentCardIndex < flashcardsData.length - 1) {
+        currentCardIndex++;
+        renderFlashcard();
+      }
+    }
+
+    function prevCard() {
+      if (currentCardIndex > 0) {
+        currentCardIndex--;
+        renderFlashcard();
+      }
+    }
+
+    // AJAX Form submissions
+    async function handleFormSubmit(event, endpoint, section) {
+      event.preventDefault();
+      
+      const form = event.target;
+      const fileInput = document.getElementById(`file-${section}`);
+      const loadingIndicator = document.getElementById(`loading-${section}`);
+      const errorIndicator = document.getElementById(`error-${section}`);
+      const resultCard = document.getElementById(`result-${section}`);
+      const submitBtn = document.getElementById(`btn-${section}`);
+      
+      // Form Validation
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showError(section, "Please select a study notes file (.pdf or .docx) to upload first.");
+        return;
+      }
+      
+      // Clean UI
+      errorIndicator.style.display = 'none';
+      errorIndicator.textContent = '';
+      resultCard.style.display = 'none';
+      
+      // Disable inputs / Show loading
+      submitBtn.disabled = true;
+      loadingIndicator.style.display = 'flex';
+      
+      // Build FormData
+      const formData = new FormData(form);
+      
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || `Server responded with status ${response.status}`);
+        }
+        
+        // Display Results based on section
+        if (section === 'quiz') {
+          renderQuizResult(data.quiz);
+        } else if (section === 'flashcards') {
+          flashcardsData = data.flashcards;
+          currentCardIndex = 0;
+          if (flashcardsData.length > 0) {
+            renderFlashcard();
+            resultCard.style.display = 'block';
+          } else {
+            throw new Error("No flashcards could be generated from the text. Make sure the file has enough readable content.");
+          }
+        } else if (section === 'doubts') {
+          const doubtContent = document.getElementById('doubt-answer-content');
+          doubtContent.textContent = data.answer;
+          resultCard.style.display = 'block';
+        }
+        
+      } catch (err) {
+        showError(section, err.message || "An unexpected network error occurred. Please try again.");
+      } finally {
+        submitBtn.disabled = false;
+        loadingIndicator.style.display = 'none';
+      }
+    }
+
+    function showError(section, message) {
+      const errorIndicator = document.getElementById(`error-${section}`);
+      errorIndicator.textContent = message;
+      errorIndicator.style.display = 'block';
+      
+      // Scroll to error
+      errorIndicator.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function renderQuizResult(quizData) {
+      const container = document.getElementById('quiz-list-container');
+      container.innerHTML = '';
+      
+      if (!quizData || quizData.length === 0) {
+        container.innerHTML = '<p class="upload-subtext">No quiz questions generated. Try uploading a different notes file.</p>';
+        document.getElementById('result-quiz').style.display = 'block';
+        return;
+      }
+      
+      quizData.forEach((item, index) => {
+        const quizItemDiv = document.createElement('div');
+        quizItemDiv.className = 'quiz-item';
+        
+        const questionText = document.createElement('p');
+        questionText.className = 'quiz-question';
+        questionText.textContent = `${index + 1}. ${item.question}`;
+        
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'quiz-answer-toggle';
+        toggleBtn.textContent = 'Show Answer';
+        toggleBtn.type = 'button';
+        
+        const answerText = document.createElement('div');
+        answerText.className = 'quiz-answer';
+        answerText.textContent = item.answer;
+        
+        toggleBtn.onclick = () => {
+          const isShown = answerText.classList.toggle('show');
+          toggleBtn.textContent = isShown ? 'Hide Answer' : 'Show Answer';
+        };
+        
+        quizItemDiv.appendChild(questionText);
+        quizItemDiv.appendChild(toggleBtn);
+        quizItemDiv.appendChild(answerText);
+        
+        container.appendChild(quizItemDiv);
+      });
+      
+      document.getElementById('result-quiz').style.display = 'block';
+    }
+
+    // Add programmatic event listeners to flashcard controls to bypass 3D transform issues
+    document.getElementById('btn-prev-card').addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      prevCard();
+    });
+    document.getElementById('btn-next-card').addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      nextCard();
+    });
+  </script>
+</body>
+</html>
