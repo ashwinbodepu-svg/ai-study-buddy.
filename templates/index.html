@@ -3,24 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Study Buddy</title>
+  <title>Study Buddy - Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-  <!-- Sidebar Navigation -->
+  <!-- Left Sidebar Navigation -->
   <aside class="sidebar">
+    <!-- Serif Gold Logo -->
     <div class="logo-container">
-      <!-- Simple and bold SVG logo -->
-      <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Thin-lined gold square outline -->
-        <rect x="25" y="25" width="50" height="50" rx="4" fill="none" stroke="var(--accent-color)" stroke-width="1.5"/>
-        
-        <!-- Bold serif letter S in cream -->
-        <text x="50" y="53" dominant-baseline="middle" text-anchor="middle" font-family="var(--font-serif)" font-weight="700" font-size="32" fill="var(--text-primary)">S</text>
-      </svg>
-      <div class="logo-text">StudyBuddy</div>
+      <div class="logo-text-stacked">
+        <span class="logo-word-top">Study</span>
+        <span class="logo-word-bottom">Buddy</span>
+      </div>
     </div>
+
+    <!-- Sidebar Menu Options -->
     <ul class="nav-menu">
       <li class="nav-item active" id="nav-quiz">
         <button onclick="switchTab('quiz')">
@@ -58,162 +56,355 @@
           <span class="icon-dot"></span>
         </button>
       </li>
+      <li class="nav-item" id="nav-guide">
+        <button onclick="switchTab('guide')">
+          <!-- Line-art book/open document icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Study Guide
+          <span class="icon-dot"></span>
+        </button>
+      </li>
     </ul>
+
+    <!-- Sidebar Bottom controls -->
+    <div class="sidebar-bottom">
+      <button class="new-session-btn" onclick="location.reload()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        New Session
+      </button>
+    </div>
   </aside>
 
-  <!-- Main Content Panel -->
-  <main class="main-content">
-    
-    <!-- 1. QUIZ GENERATOR SECTION -->
-    <section id="section-quiz" class="content-section">
-      <div class="section-header">
-        <h1>Quiz Generator</h1>
-        <p>Upload study notes to automatically generate a custom quiz with question-answer pairs.</p>
-      </div>
-
-      <form id="form-quiz" onsubmit="handleFormSubmit(event, '/generate-quiz', 'quiz')">
-        <!-- Drag and drop card styled file selector -->
-        <div class="upload-card" onclick="document.getElementById('file-quiz').click()">
-          <div class="upload-icon">📄</div>
-          <div class="upload-text">Click to upload notes</div>
-          <div class="upload-subtext">Supports PDF or DOCX up to 16MB</div>
-          <input type="file" id="file-quiz" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'quiz')">
-        </div>
-        
-        <!-- File feedback -->
-        <div id="file-info-quiz" class="file-info-bar" style="display: none;">
-          <span class="file-info-name" id="filename-quiz"></span>
-          <button type="button" class="remove-file-btn" onclick="clearFile('quiz')">Remove</button>
+  <!-- Right Panel Container -->
+  <div class="main-wrapper">
+    <!-- Main Dynamic Content Panel -->
+    <main class="main-content">
+      
+      <!-- 1. QUIZ GENERATOR PANEL -->
+      <section id="section-quiz" class="content-section">
+        <div class="dashboard-header">
+          <div>
+            <h1>Welcome back.</h1>
+            <p>The quiet hours are when progress is made. Your AI tutor is ready to distill your latest lecture into a structured mastery plan.</p>
+          </div>
+          <div class="dashboard-date-widget">
+            <div class="date-widget-today" id="quiz-date">October 24, 2023</div>
+          </div>
         </div>
 
-        <button type="submit" class="submit-btn" id="btn-quiz" style="margin-top: 1.5rem;">
-          Generate Quiz
-        </button>
-      </form>
+        <form id="form-quiz" onsubmit="handleFormSubmit(event, '/generate-quiz', 'quiz')">
+          <!-- Grey Upload Zone -->
+          <div class="upload-card-premium" onclick="document.getElementById('file-quiz').click()">
+            <div class="upload-icon-container">
+              <svg class="upload-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9 15 12 12 15 15"/>
+              </svg>
+            </div>
+            <div class="upload-title-premium">Upload your study materials</div>
+            <div class="upload-desc-premium">Drop PDFs, lecture transcripts, or handwritten notes. We'll extract concepts and generate your study suite.</div>
+            <button type="button" class="choose-files-btn">Choose Files</button>
+            <div class="upload-limits-premium">Maximum 16MB per file. Supports PDF, DOCX.</div>
+            
+            <input type="file" id="file-quiz" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'quiz')" style="display: none;">
+          </div>
+          
+          <!-- File info selection feedback -->
+          <div id="file-info-quiz" class="file-info-bar-premium" style="display: none;">
+            <span class="file-info-name-premium">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span id="filename-quiz"></span>
+            </span>
+            <button type="button" class="remove-file-btn" onclick="clearFile('quiz')">Remove</button>
+          </div>
 
-      <!-- Loading and Error UI -->
-      <div id="loading-quiz" class="loading-indicator">
-        <div class="spinner"></div>
-        <span>Generating your quiz... Please wait.</span>
-      </div>
-      <div id="error-quiz" class="alert"></div>
+          <div class="action-trigger-container">
+            <button type="submit" class="submit-btn" id="btn-quiz">
+              Generate Quiz
+            </button>
+          </div>
+        </form>
 
-      <!-- Quiz Results -->
-      <div id="result-quiz" class="result-card">
-        <div class="result-header">Generated Quiz</div>
-        <div class="quiz-list" id="quiz-list-container">
-          <!-- Dynamic quiz items go here -->
+        <!-- Loading indicator -->
+        <div id="loading-quiz" class="loading-indicator">
+          <div class="spinner"></div>
+          <span>Generating your quiz... Please wait.</span>
         </div>
-      </div>
-    </section>
+        <div id="error-quiz" class="alert"></div>
 
-    <!-- 2. FLASHCARDS SECTION -->
-    <section id="section-flashcards" class="content-section hidden">
-      <div class="section-header">
-        <h1>Flashcards Generator</h1>
-        <p>Turn your files into dynamic front-and-back study cards to quickly review concepts.</p>
-      </div>
-
-      <form id="form-flashcards" onsubmit="handleFormSubmit(event, '/generate-flashcards', 'flashcards')">
-        <div class="upload-card" onclick="document.getElementById('file-flashcards').click()">
-          <div class="upload-icon">🎴</div>
-          <div class="upload-text">Click to upload notes</div>
-          <div class="upload-subtext">Supports PDF or DOCX up to 16MB</div>
-          <input type="file" id="file-flashcards" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'flashcards')">
+        <!-- Quiz Results -->
+        <div id="result-quiz" class="result-card">
+          <div class="result-header">Generated Quiz</div>
+          <div class="quiz-list" id="quiz-list-container">
+            <!-- Dynamic items -->
+          </div>
         </div>
-        
-        <div id="file-info-flashcards" class="file-info-bar" style="display: none;">
-          <span class="file-info-name" id="filename-flashcards"></span>
-          <button type="button" class="remove-file-btn" onclick="clearFile('flashcards')">Remove</button>
+      </section>
+
+      <!-- 2. FLASHCARDS PANEL -->
+      <section id="section-flashcards" class="content-section hidden">
+        <div class="dashboard-header">
+          <div>
+            <h1>Study Flashcards</h1>
+            <p>Select your course material. Let the AI identify core concepts and build a custom memorisation deck for your sessions.</p>
+          </div>
+          <div class="dashboard-date-widget">
+            <div class="date-widget-today" id="flashcards-date">October 24, 2023</div>
+          </div>
         </div>
 
-        <button type="submit" class="submit-btn" id="btn-flashcards" style="margin-top: 1.5rem;">
-          Generate Flashcards
-        </button>
-      </form>
+        <form id="form-flashcards" onsubmit="handleFormSubmit(event, '/generate-flashcards', 'flashcards')">
+          <div class="upload-card-premium" onclick="document.getElementById('file-flashcards').click()">
+            <div class="upload-icon-container">
+              <svg class="upload-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9 15 12 12 15 15"/>
+              </svg>
+            </div>
+            <div class="upload-title-premium">Upload your study materials</div>
+            <div class="upload-desc-premium">Drop PDFs, lecture transcripts, or handwritten notes. We'll extract concepts and generate your study suite.</div>
+            <button type="button" class="choose-files-btn">Choose Files</button>
+            <div class="upload-limits-premium">Maximum 16MB per file. Supports PDF, DOCX.</div>
+            
+            <input type="file" id="file-flashcards" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'flashcards')" style="display: none;">
+          </div>
+          
+          <div id="file-info-flashcards" class="file-info-bar-premium" style="display: none;">
+            <span class="file-info-name-premium">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span id="filename-flashcards"></span>
+            </span>
+            <button type="button" class="remove-file-btn" onclick="clearFile('flashcards')">Remove</button>
+          </div>
 
-      <!-- Loading and Error UI -->
-      <div id="loading-flashcards" class="loading-indicator">
-        <div class="spinner"></div>
-        <span>Generating your flashcards... Please wait.</span>
-      </div>
-      <div id="error-flashcards" class="alert"></div>
+          <div class="action-trigger-container">
+            <button type="submit" class="submit-btn" id="btn-flashcards">
+              Generate Flashcards
+            </button>
+          </div>
+        </form>
 
-      <!-- Flashcards Results -->
-      <div id="result-flashcards" class="result-card">
-        <div class="result-header" style="text-align: center;">Study Flashcards</div>
-        <div class="flashcards-container">
-          <div class="flashcard-view" id="flashcard-view" onclick="toggleCardFlip()">
-            <div class="flashcard">
-              <div class="flashcard-front">
-                <span class="flashcard-badge">Front Side</span>
-                <p class="flashcard-content" id="flashcard-front-content">Flashcard Front Text</p>
+        <div id="loading-flashcards" class="loading-indicator">
+          <div class="spinner"></div>
+          <span>Generating your flashcards... Please wait.</span>
+        </div>
+        <div id="error-flashcards" class="alert"></div>
+
+        <!-- Flashcards Results -->
+        <div id="result-flashcards" class="result-card">
+          <div class="result-header" style="text-align: center;">Study Flashcards</div>
+          <div class="flashcards-container">
+            
+            <!-- Mastery Progress Bar -->
+            <div class="mastery-progress-wrapper" id="flashcards-mastery-wrapper">
+              <div class="mastery-label-row">
+                <span>Mastery Progress</span>
+                <span id="mastery-counter">0 of 0 mastered (0%)</span>
               </div>
-              <div class="flashcard-back">
-                <span class="flashcard-badge">Back Side</span>
-                <p class="flashcard-content" id="flashcard-back-content">Flashcard Back Text</p>
+              <div class="mastery-bar-outer">
+                <div class="mastery-bar-inner" id="mastery-progress-fill"></div>
               </div>
             </div>
+
+            <!-- Standard Flashcard View -->
+            <div id="flashcard-learning-area" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.5rem;">
+              <div class="flashcard-view" id="flashcard-view" onclick="toggleCardFlip()">
+                <div class="flashcard">
+                  <div class="flashcard-front">
+                    <span class="flashcard-badge">Front Side</span>
+                    <p class="flashcard-content" id="flashcard-front-content">Flashcard Front Text</p>
+                  </div>
+                  <div class="flashcard-back">
+                    <span class="flashcard-badge">Back Side</span>
+                    <p class="flashcard-content" id="flashcard-back-content">Flashcard Back Text</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Mastery Action Buttons -->
+              <div class="flashcard-mastery-controls">
+                <button type="button" class="mastery-btn btn-still-practicing" id="btn-still-practicing">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  Practice Again
+                </button>
+                <button type="button" class="mastery-btn btn-mastered" id="btn-mastered">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Got it Right!
+                </button>
+              </div>
+
+              <!-- Backup navigation/counter controls -->
+              <div class="flashcards-controls" style="margin-top: 0.5rem;">
+                <span class="card-counter" id="card-counter">Card 0 of 0</span>
+                <button type="button" class="flashcards-nav-btn" id="btn-prev-card">Prev</button>
+                <button type="button" class="flashcards-nav-btn" id="btn-next-card">Next</button>
+              </div>
+            </div>
+
+            <!-- Celebration Screen Overlay -->
+            <div id="flashcard-celebration-area" style="display: none; width: 100%;">
+              <div class="celebration-overlay">
+                <div class="celebration-trophy">🏆</div>
+                <div class="celebration-title">Deck Mastered!</div>
+                <p class="celebration-text">Excellent job! You have rated every concept in this stack as fully understood.</p>
+                <button type="button" class="quiz-retry-btn" onclick="restartFlashcardDeck()">Practice Deck Again</button>
+              </div>
+            </div>
+
           </div>
-          <div class="flashcards-controls">
-            <span class="card-counter" id="card-counter">Card 0 of 0</span>
-            <button type="button" class="flashcards-nav-btn" id="btn-prev-card">Prev</button>
-            <button type="button" class="flashcards-nav-btn" id="btn-next-card">Next</button>
+        </div>
+      </section>
+
+      <!-- 3. ASK A DOUBT PANEL -->
+      <section id="section-doubts" class="content-section hidden">
+        <div class="dashboard-header">
+          <div>
+            <h1>Ask a Doubt</h1>
+            <p>Upload context materials. Enter any query and receive exact, grounded responses verified strictly from the document.</p>
+          </div>
+          <div class="dashboard-date-widget">
+            <div class="date-widget-today" id="doubts-date">October 24, 2023</div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- 3. ASK A DOUBT SECTION -->
-    <section id="section-doubts" class="content-section hidden">
-      <div class="section-header">
-        <h1>Ask a Doubt</h1>
-        <p>Ask questions and get answers grounded strictly in the contents of your uploaded notes.</p>
-      </div>
-
-      <form id="form-doubts" onsubmit="handleFormSubmit(event, '/ask-doubt', 'doubts')">
-        <div class="upload-card" onclick="document.getElementById('file-doubts').click()">
-          <div class="upload-icon">🙋</div>
-          <div class="upload-text">Click to upload reference notes</div>
-          <div class="upload-subtext">Supports PDF or DOCX up to 16MB</div>
-          <input type="file" id="file-doubts" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'doubts')">
-        </div>
-        
-        <div id="file-info-doubts" class="file-info-bar" style="display: none;">
-          <span class="file-info-name" id="filename-doubts"></span>
-          <button type="button" class="remove-file-btn" onclick="clearFile('doubts')">Remove</button>
+        <!-- Document Reference Status Bar -->
+        <div id="chat-doc-status-bar" class="file-info-bar-premium" style="display: none; margin-bottom: 1.5rem; justify-content: space-between;">
+          <span class="file-info-name-premium">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <strong id="chat-doc-name">No document loaded</strong> (Reference Active)
+          </span>
+          <button type="button" class="remove-file-btn" onclick="unloadChatDocument()">Change File</button>
         </div>
 
-        <div class="form-group" style="margin-top: 1.5rem;">
-          <label for="doubt-input" style="font-weight: 500; font-size: 0.95rem; color: var(--text-secondary);">Your Doubt / Question:</label>
-          <input type="text" id="doubt-input" name="doubt" class="text-input" placeholder="e.g. What is the main thesis of chapter 3?" required>
+        <!-- Initial Upload Card -->
+        <div id="chat-upload-container">
+          <div class="upload-card-premium" onclick="document.getElementById('file-doubts').click()">
+            <div class="upload-icon-container">
+              <svg class="upload-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9 15 12 12 15 15"/>
+              </svg>
+            </div>
+            <div class="upload-title-premium">Upload reference notes to start chat</div>
+            <div class="upload-desc-premium">Drop PDFs, lecture transcripts, or handwritten notes. Your AI buddy will answer doubts based exclusively on them.</div>
+            <button type="button" class="choose-files-btn">Choose Files</button>
+            <div class="upload-limits-premium">Maximum 16MB per file. Supports PDF, DOCX.</div>
+            
+            <input type="file" id="file-doubts" name="file" class="file-input" accept=".pdf,.docx" onchange="loadChatDocument(this)" style="display: none;">
+          </div>
         </div>
 
-        <button type="submit" class="submit-btn" id="btn-doubts" style="margin-top: 1.5rem;">
-          Ask AI Buddy
-        </button>
-      </form>
+        <!-- Error feedback -->
+        <div id="error-doubts" class="alert"></div>
 
-      <!-- Loading and Error UI -->
-      <div id="loading-doubts" class="loading-indicator">
-        <div class="spinner"></div>
-        <span>Searching notes and generating answer...</span>
-      </div>
-      <div id="error-doubts" class="alert"></div>
-
-      <!-- Doubt Results -->
-      <div id="result-doubts" class="result-card">
-        <div class="result-header">AI Answer</div>
-        <div class="doubt-answer-text" id="doubt-answer-content">
-          <!-- Answer goes here -->
+        <!-- Threaded Chat Interface -->
+        <div id="chat-box-workspace" class="chat-box-container" style="display: none;">
+          <div class="chat-message-list" id="chat-log-list">
+            <!-- Messages added here dynamically -->
+          </div>
+          
+          <form id="form-doubts" onsubmit="sendDoubtMessage(event)" class="chat-input-row">
+            <input type="text" id="doubt-input" name="doubt" class="chat-input-field" placeholder="Ask a doubt about your notes..." required>
+            <button type="submit" class="chat-send-btn" id="btn-doubts">
+              <span>Send</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
         </div>
-      </div>
-    </section>
+      </section>
+      
+      <!-- 4. STUDY GUIDE GENERATOR PANEL -->
+      <section id="section-guide" class="content-section hidden">
+        <div class="dashboard-header">
+          <div>
+            <h1>Study Guide Generator</h1>
+            <p>Compile a professional, formatted revision guide from your notes. Includes Executive Summaries, Key Terms, and Equation sheets.</p>
+          </div>
+          <div class="dashboard-date-widget">
+            <div class="date-widget-today" id="guide-date">October 24, 2023</div>
+          </div>
+        </div>
 
-  </main>
+        <form id="form-guide" onsubmit="handleFormSubmit(event, '/generate-guide', 'guide')">
+          <!-- Grey Upload Zone -->
+          <div class="upload-card-premium" onclick="document.getElementById('file-guide').click()">
+            <div class="upload-icon-container">
+              <svg class="upload-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9 15 12 12 15 15"/>
+              </svg>
+            </div>
+            <div class="upload-title-premium">Upload your study materials</div>
+            <div class="upload-desc-premium">Drop PDFs, lecture transcripts, or handwritten notes. We'll extract concepts and generate your study suite.</div>
+            <button type="button" class="choose-files-btn">Choose Files</button>
+            <div class="upload-limits-premium">Maximum 16MB per file. Supports PDF, DOCX.</div>
+            
+            <input type="file" id="file-guide" name="file" class="file-input" accept=".pdf,.docx" onchange="handleFileSelect(this, 'guide')" style="display: none;">
+          </div>
+          
+          <!-- File info selection feedback -->
+          <div id="file-info-guide" class="file-info-bar-premium" style="display: none;">
+            <span class="file-info-name-premium">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span id="filename-guide"></span>
+            </span>
+            <button type="button" class="remove-file-btn" onclick="clearFile('guide')">Remove</button>
+          </div>
+
+          <div class="action-trigger-container">
+            <button type="submit" class="submit-btn" id="btn-guide">
+              Generate Study Guide
+            </button>
+          </div>
+        </form>
+
+        <!-- Loading indicator -->
+        <div id="loading-guide" class="loading-indicator">
+          <div class="spinner"></div>
+          <span>Compiling study notes into revision guide...</span>
+        </div>
+        <div id="error-guide" class="alert"></div>
+
+        <!-- Guide Results -->
+        <div id="result-guide" class="result-card">
+          <div class="result-header">Revision Study Guide</div>
+          <div class="guide-content-area" id="guide-content-content">
+            <!-- Formatted HTML Guide goes here -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <script>
-    // Tab switching logic (no page reload)
+    // Set current dates in the dashboards on load
+    document.addEventListener("DOMContentLoaded", () => {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const today = new Date().toLocaleDateString("en-US", options);
+      
+      const dateIds = ['quiz-date', 'flashcards-date', 'doubts-date', 'guide-date'];
+      dateIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = today;
+      });
+    });
+
+    // Tab switching logic (Sidebar views)
     function switchTab(tabId) {
       // Toggle nav menu selection styles
       document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
@@ -255,19 +446,24 @@
       fileInfoBar.style.display = 'none';
     }
 
-    // Flashcard deck variables
+    // Spaced Repetition Flashcard variables
     let flashcardsData = [];
-    let currentCardIndex = 0;
+    let totalCardsCount = 0;
+    let unmasteredQueue = [];
+    let masteredCards = [];
+    let currentQueueIndex = 0;
 
     function toggleCardFlip() {
       const cardView = document.getElementById('flashcard-view');
       cardView.classList.toggle('flipped');
     }
 
-    function renderFlashcard() {
-      if (flashcardsData.length === 0) return;
+    function renderSpacedCard() {
+      if (unmasteredQueue.length === 0) {
+        showFlashcardCelebration();
+        return;
+      }
       
-      // Remove flip animation classes and reset to front side
       const cardView = document.getElementById('flashcard-view');
       cardView.classList.remove('flipped');
       
@@ -275,28 +471,177 @@
       const backContent = document.getElementById('flashcard-back-content');
       const cardCounter = document.getElementById('card-counter');
       
-      const currentCard = flashcardsData[currentCardIndex];
+      const currentCard = unmasteredQueue[currentQueueIndex];
       frontContent.textContent = currentCard.front;
       backContent.textContent = currentCard.back;
       
-      cardCounter.textContent = `Card ${currentCardIndex + 1} of ${flashcardsData.length}`;
+      cardCounter.textContent = `Card ${currentQueueIndex + 1} of ${unmasteredQueue.length} remaining`;
       
-      // Handle button states
-      document.getElementById('btn-prev-card').disabled = currentCardIndex === 0;
-      document.getElementById('btn-next-card').disabled = currentCardIndex === flashcardsData.length - 1;
+      updateMasteryProgress();
+      
+      document.getElementById('btn-prev-card').disabled = currentQueueIndex === 0;
+      document.getElementById('btn-next-card').disabled = currentQueueIndex === unmasteredQueue.length - 1;
     }
 
-    function nextCard() {
-      if (currentCardIndex < flashcardsData.length - 1) {
-        currentCardIndex++;
-        renderFlashcard();
+    function updateMasteryProgress() {
+      const counter = document.getElementById('mastery-counter');
+      const fill = document.getElementById('mastery-progress-fill');
+      
+      const masteredCount = masteredCards.length;
+      const percent = Math.round((masteredCount / totalCardsCount) * 100);
+      
+      counter.textContent = `${masteredCount} of ${totalCardsCount} mastered (${percent}%)`;
+      fill.style.width = `${percent}%`;
+    }
+
+    function markCardMastered() {
+      if (unmasteredQueue.length === 0) return;
+      
+      const currentCard = unmasteredQueue[currentQueueIndex];
+      masteredCards.push(currentCard);
+      unmasteredQueue.splice(currentQueueIndex, 1);
+      
+      if (unmasteredQueue.length === 0) {
+        showFlashcardCelebration();
+      } else {
+        if (currentQueueIndex >= unmasteredQueue.length) {
+          currentQueueIndex = 0;
+        }
+        renderSpacedCard();
       }
     }
 
-    function prevCard() {
-      if (currentCardIndex > 0) {
-        currentCardIndex--;
-        renderFlashcard();
+    function markCardForPractice() {
+      if (unmasteredQueue.length === 0) return;
+      
+      currentQueueIndex = (currentQueueIndex + 1) % unmasteredQueue.length;
+      renderSpacedCard();
+    }
+
+    function showFlashcardCelebration() {
+      updateMasteryProgress();
+      document.getElementById('flashcard-learning-area').style.display = 'none';
+      document.getElementById('flashcard-celebration-area').style.display = 'block';
+    }
+
+    function restartFlashcardDeck() {
+      unmasteredQueue = [...flashcardsData];
+      masteredCards = [];
+      currentQueueIndex = 0;
+      
+      document.getElementById('flashcard-learning-area').style.display = 'flex';
+      document.getElementById('flashcard-celebration-area').style.display = 'none';
+      
+      renderSpacedCard();
+    }
+
+    // Threaded Chat variables
+    let chatHistory = [];
+    let chatFileSelected = null;
+
+    function loadChatDocument(input) {
+      const statusDiv = document.getElementById('chat-doc-status-bar');
+      const docName = document.getElementById('chat-doc-name');
+      const uploadContainer = document.getElementById('chat-upload-container');
+      const workspace = document.getElementById('chat-box-workspace');
+      const logList = document.getElementById('chat-log-list');
+      
+      if (input.files && input.files[0]) {
+        chatFileSelected = input.files[0];
+        docName.textContent = chatFileSelected.name;
+        
+        statusDiv.style.display = 'flex';
+        uploadContainer.style.display = 'none';
+        workspace.style.display = 'flex';
+        
+        logList.innerHTML = '';
+        chatHistory = [];
+        
+        addBuddyChatBubble("Hello! I am your AI Study Buddy. Ask me any doubt, and I will answer it based exclusively on these notes!");
+      }
+    }
+
+    function unloadChatDocument() {
+      chatFileSelected = null;
+      
+      document.getElementById('chat-doc-status-bar').style.display = 'none';
+      document.getElementById('chat-upload-container').style.display = 'block';
+      document.getElementById('chat-box-workspace').style.display = 'none';
+      document.getElementById('file-doubts').value = '';
+    }
+
+    function addBuddyChatBubble(text) {
+      const logList = document.getElementById('chat-log-list');
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-message message-buddy';
+      bubble.textContent = text;
+      logList.appendChild(bubble);
+      logList.scrollTop = logList.scrollHeight;
+    }
+
+    function addUserChatBubble(text) {
+      const logList = document.getElementById('chat-log-list');
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-message message-user';
+      bubble.textContent = text;
+      logList.appendChild(bubble);
+      logList.scrollTop = logList.scrollHeight;
+    }
+
+    async function sendDoubtMessage(event) {
+      event.preventDefault();
+      
+      const input = document.getElementById('doubt-input');
+      const query = input.value.trim();
+      if (!query || !chatFileSelected) return;
+      
+      addUserChatBubble(query);
+      input.value = '';
+      
+      const logList = document.getElementById('chat-log-list');
+      const loadingBubble = document.createElement('div');
+      loadingBubble.className = 'chat-message message-buddy';
+      loadingBubble.innerHTML = '<span class="spinner" style="display:inline-block; width:12px; height:12px; margin-right:6px;"></span> AI is thinking...';
+      logList.appendChild(loadingBubble);
+      logList.scrollTop = logList.scrollHeight;
+      
+      let historyText = "";
+      chatHistory.forEach(msg => {
+        historyText += `${msg.role === 'user' ? 'Student' : 'AI Buddy'}: ${msg.text}\n`;
+      });
+      historyText += `Student: ${query}\n`;
+      
+      chatHistory.push({ role: 'user', text: query });
+      
+      const formData = new FormData();
+      formData.append('file', chatFileSelected);
+      formData.append('doubt', historyText);
+      
+      const submitBtn = document.getElementById('btn-doubts');
+      submitBtn.disabled = true;
+      
+      try {
+        const response = await fetch('/ask-doubt', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        loadingBubble.remove();
+        
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || `Server responded with status ${response.status}`);
+        }
+        
+        addBuddyChatBubble(data.answer);
+        chatHistory.push({ role: 'model', text: data.answer });
+        
+      } catch (err) {
+        loadingBubble.remove();
+        addBuddyChatBubble(`Error: ${err.message || "Could not retrieve answer. Check your connection."}`);
+      } finally {
+        submitBtn.disabled = false;
       }
     }
 
@@ -346,16 +691,24 @@
           renderQuizResult(data.quiz);
         } else if (section === 'flashcards') {
           flashcardsData = data.flashcards;
-          currentCardIndex = 0;
+          unmasteredQueue = [...flashcardsData];
+          masteredCards = [];
+          totalCardsCount = flashcardsData.length;
+          currentQueueIndex = 0;
+          
           if (flashcardsData.length > 0) {
-            renderFlashcard();
+            document.getElementById('flashcard-learning-area').style.display = 'flex';
+            document.getElementById('flashcard-celebration-area').style.display = 'none';
+            document.getElementById('flashcards-mastery-wrapper').style.display = 'flex';
+            
+            renderSpacedCard();
             resultCard.style.display = 'block';
           } else {
             throw new Error("No flashcards could be generated from the text. Make sure the file has enough readable content.");
           }
-        } else if (section === 'doubts') {
-          const doubtContent = document.getElementById('doubt-answer-content');
-          doubtContent.textContent = data.answer;
+        } else if (section === 'guide') {
+          const guideContent = document.getElementById('guide-content-content');
+          guideContent.innerHTML = formatGuideMarkdown(data.guide);
           resultCard.style.display = 'block';
         }
         
@@ -367,6 +720,42 @@
       }
     }
 
+    function formatGuideMarkdown(text) {
+      if (!text) return "";
+      
+      // Escape HTML to prevent XSS
+      let escaped = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      
+      // Convert headers
+      let html = escaped
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>');
+        
+      // Convert bold
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      
+      // Convert lists
+      html = html.replace(/^\s*\-\s*(.*$)/gim, '<li>$1</li>');
+      html = html.replace(/^\s*\*\s*(.*$)/gim, '<li>$1</li>');
+      
+      // Wrap list items
+      html = html.replace(/(<li>.*<\/li>)/gim, '<ul>$1</ul>');
+      
+      // Convert paragraphs / line breaks
+      html = html.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+      
+      // Wrap in paragraph if it doesn't start with heading/list/paragraph
+      if (!html.startsWith('<h') && !html.startsWith('<u') && !html.startsWith('<p')) {
+        html = '<p>' + html + '</p>';
+      }
+      
+      return html;
+    }
+
     function showError(section, message) {
       const errorIndicator = document.getElementById(`error-${section}`);
       errorIndicator.textContent = message;
@@ -376,7 +765,22 @@
       errorIndicator.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
+    let currentQuizData = [];
+    let userSelections = {};
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
     function renderQuizResult(quizData) {
+      currentQuizData = quizData;
+      userSelections = {};
+      
       const container = document.getElementById('quiz-list-container');
       container.innerHTML = '';
       
@@ -385,49 +789,206 @@
         document.getElementById('result-quiz').style.display = 'block';
         return;
       }
-      
+
+      // Generate options for each question
       quizData.forEach((item, index) => {
         const quizItemDiv = document.createElement('div');
         quizItemDiv.className = 'quiz-item';
+        quizItemDiv.setAttribute('data-question-index', index);
         
         const questionText = document.createElement('p');
         questionText.className = 'quiz-question';
         questionText.textContent = `${index + 1}. ${item.question}`;
-        
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'quiz-answer-toggle';
-        toggleBtn.textContent = 'Show Answer';
-        toggleBtn.type = 'button';
-        
-        const answerText = document.createElement('div');
-        answerText.className = 'quiz-answer';
-        answerText.textContent = item.answer;
-        
-        toggleBtn.onclick = () => {
-          const isShown = answerText.classList.toggle('show');
-          toggleBtn.textContent = isShown ? 'Hide Answer' : 'Show Answer';
-        };
-        
         quizItemDiv.appendChild(questionText);
-        quizItemDiv.appendChild(toggleBtn);
-        quizItemDiv.appendChild(answerText);
+
+        // Gather distractors from other questions' answers
+        const otherAnswers = quizData
+          .filter((_, idx) => idx !== index)
+          .map(q => q.answer);
+          
+        // Shuffle and pick up to 3 distractors
+        const shuffledDistractors = shuffleArray([...new Set(otherAnswers)]);
+        let distractors = shuffledDistractors.slice(0, 3);
         
+        // Fallback generic distractors if we don't have enough questions
+        const fallbacks = [
+          "This detail is not covered in the notes.",
+          "All of the above statements are correct.",
+          "None of the options accurately explain the concept.",
+          "This is an auxiliary definition from Chapter 1."
+        ];
+        let fallbackIdx = 0;
+        while (distractors.length < 3 && fallbackIdx < fallbacks.length) {
+          const fb = fallbacks[fallbackIdx++];
+          if (fb !== item.answer && !distractors.includes(fb)) {
+            distractors.push(fb);
+          }
+        }
+
+        // Combine correct answer and distractors, then shuffle
+        const choices = shuffleArray([item.answer, ...distractors]);
+        
+        const optionsList = document.createElement('div');
+        optionsList.className = 'quiz-options-list';
+
+        choices.forEach((choice) => {
+          const optionCard = document.createElement('div');
+          optionCard.className = 'quiz-option-card';
+          optionCard.setAttribute('data-choice-text', choice);
+          
+          const radioDot = document.createElement('div');
+          radioDot.className = 'quiz-option-radio';
+          
+          const choiceText = document.createElement('span');
+          choiceText.textContent = choice;
+          
+          optionCard.appendChild(radioDot);
+          optionCard.appendChild(choiceText);
+          
+          // Selection handler
+          optionCard.addEventListener('click', () => {
+            if (optionCard.classList.contains('correct') || optionCard.classList.contains('incorrect') || optionCard.parentNode.classList.contains('submitted')) {
+              return; // Already submitted
+            }
+            
+            // Clear selections in this list
+            optionsList.querySelectorAll('.quiz-option-card').forEach(card => {
+              card.classList.remove('selected');
+            });
+            
+            optionCard.classList.add('selected');
+            userSelections[index] = choice;
+          });
+
+          optionsList.appendChild(optionCard);
+        });
+
+        quizItemDiv.appendChild(optionsList);
+        
+        // Explanation box (hidden at start)
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'quiz-explanation-box';
+        explanationBox.style.display = 'none';
+        explanationBox.innerHTML = `<strong>Explanation:</strong> ${item.answer}`;
+        quizItemDiv.appendChild(explanationBox);
+
         container.appendChild(quizItemDiv);
       });
+
+      // Submit Button container
+      const controlDiv = document.createElement('div');
+      controlDiv.className = 'action-trigger-container';
+      controlDiv.style.marginTop = '2rem';
+      
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'button';
+      submitBtn.className = 'submit-btn';
+      submitBtn.id = 'btn-submit-quiz';
+      submitBtn.textContent = 'Submit Answers';
+      submitBtn.addEventListener('click', gradeInteractiveQuiz);
+      
+      controlDiv.appendChild(submitBtn);
+      container.appendChild(controlDiv);
       
       document.getElementById('result-quiz').style.display = 'block';
+      document.getElementById('result-quiz').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function gradeInteractiveQuiz() {
+      // 1. Calculate Score
+      let score = 0;
+      const total = currentQuizData.length;
+      
+      currentQuizData.forEach((item, index) => {
+        const selected = userSelections[index];
+        const correct = item.answer;
+        
+        const quizItemDiv = document.querySelector(`.quiz-item[data-question-index="${index}"]`);
+        const optionsList = quizItemDiv.querySelector('.quiz-options-list');
+        optionsList.classList.add('submitted');
+        
+        optionsList.querySelectorAll('.quiz-option-card').forEach(card => {
+          const choiceText = card.getAttribute('data-choice-text');
+          
+          if (choiceText === correct) {
+            card.classList.add('correct');
+          } else if (choiceText === selected) {
+            card.classList.add('incorrect');
+          }
+        });
+        
+        if (selected === correct) {
+          score++;
+        }
+        
+        // Reveal explanation
+        const explanation = quizItemDiv.querySelector('.quiz-explanation-box');
+        explanation.style.display = 'block';
+      });
+
+      // 2. Hide Submit button
+      const submitBtn = document.getElementById('btn-submit-quiz');
+      if (submitBtn) {
+        submitBtn.style.display = 'none';
+      }
+
+      // 3. Render Score Banner at the top of quiz list
+      const container = document.getElementById('quiz-list-container');
+      const scoreBanner = document.createElement('div');
+      scoreBanner.className = 'quiz-score-banner';
+      
+      const percent = Math.round((score / total) * 100);
+      
+      let feedback = "Keep practicing! Review your study notes and try again.";
+      if (percent === 100) {
+        feedback = "Perfect score! Outstanding work!";
+      } else if (percent >= 75) {
+        feedback = "Excellent job! You have mastered these concepts!";
+      } else if (percent >= 50) {
+        feedback = "Good effort! Review the explanations to improve.";
+      }
+      
+      scoreBanner.innerHTML = `
+        <span class="quiz-score-feedback">Your Score</span>
+        <span class="quiz-score-num">${score} / ${total}</span>
+        <span class="quiz-score-feedback" style="color: var(--accent-light); font-weight: 600;">${percent}% - ${feedback}</span>
+        <button type="button" class="quiz-retry-btn" onclick="retakeInteractiveQuiz()">Retake Quiz</button>
+      `;
+      
+      container.insertBefore(scoreBanner, container.firstChild);
+      scoreBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function retakeInteractiveQuiz() {
+      renderQuizResult(currentQuizData);
     }
 
     // Add programmatic event listeners to flashcard controls to bypass 3D transform issues
     document.getElementById('btn-prev-card').addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      prevCard();
+      if (currentQueueIndex > 0) {
+        currentQueueIndex--;
+        renderSpacedCard();
+      }
     });
     document.getElementById('btn-next-card').addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      nextCard();
+      if (currentQueueIndex < unmasteredQueue.length - 1) {
+        currentQueueIndex++;
+        renderSpacedCard();
+      }
+    });
+    document.getElementById('btn-still-practicing').addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      markCardForPractice();
+    });
+    document.getElementById('btn-mastered').addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      markCardMastered();
     });
   </script>
 </body>

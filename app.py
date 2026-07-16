@@ -220,5 +220,46 @@ def ask_doubt():
             os.remove(temp_path)
         return jsonify({"success": False, "error": f"An error occurred: {str(e)}"}), 500
 
+@app.route('/generate-guide', methods=['POST'])
+def generate_guide():
+    temp_path = None
+    try:
+        # 1. Check API Key
+        client = get_gemini_client()
+        
+        # 2. Validate and save file
+        file = validate_uploaded_file(request.files)
+        text, temp_path = save_and_extract_text(file)
+        
+        # 3. Call Gemini
+        prompt = (
+            "You are an expert academic tutor. Analyze the provided study notes below and generate a comprehensive, "
+            "beautifully structured Study Guide. Organize the output into clear sections:\n"
+            "1. Executive Summary (a high-level overview of the material)\n"
+            "2. Core Concepts & Theories (detailed breakdown of major topics)\n"
+            "3. Key Terms & Definitions (glossary of essential terminology)\n"
+            "4. Important Timelines or Formulas (if applicable to the subject matter)\n\n"
+            "Ensure the formatting is clean, professional, and easy to read. Use markdown headers, bullet points, and bold text.\n\n"
+            f"STUDY NOTES:\n{text}"
+        )
+        
+        response = client.models.generate_content(
+            model="gemini-flash-latest",
+            contents=prompt
+        )
+        
+        # Clean up file
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
+            
+        return jsonify({"success": True, "guide": response.text})
+            
+    except ValueError as val_err:
+        return jsonify({"success": False, "error": str(val_err)}), 400
+    except Exception as e:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
+        return jsonify({"success": False, "error": f"An error occurred: {str(e)}"}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
