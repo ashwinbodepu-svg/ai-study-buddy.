@@ -262,4 +262,6 @@ def generate_guide():
         return jsonify({"success": False, "error": f"An error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    # Bind to PORT env variable for Render deployment, default to 8080 locally
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=False)
