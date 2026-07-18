@@ -14,11 +14,15 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Configure uploads folder
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+# Configure uploads folder (use /tmp on Vercel, default to local uploads folder)
+if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'):
+    UPLOAD_FOLDER = '/tmp'
+else:
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB upload limit
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Initialize Gemini Client
 # The SDK automatically uses GEMINI_API_KEY environment variable.
