@@ -238,7 +238,7 @@
                   <div class="flashcard-front">
                     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                       <span class="flashcard-badge">Front Side</span>
-                      <button type="button" class="chat-voice-btn" onclick="event.stopPropagation(); speakText(document.getElementById('flashcard-front-content').textContent, this)" title="Listen to concept">
+                      <button type="button" class="chat-voice-btn" onclick="event.stopPropagation(); speakText(document.getElementById('flashcard-front-content').textContent, this, document.getElementById('flashcard-front-content'))" title="Listen to concept">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                       </button>
                     </div>
@@ -247,7 +247,7 @@
                   <div class="flashcard-back">
                     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                       <span class="flashcard-badge">Back Side</span>
-                      <button type="button" class="chat-voice-btn" onclick="event.stopPropagation(); speakText(document.getElementById('flashcard-back-content').textContent, this)" title="Listen to definition">
+                      <button type="button" class="chat-voice-btn" onclick="event.stopPropagation(); speakText(document.getElementById('flashcard-back-content').textContent, this, document.getElementById('flashcard-back-content'))" title="Listen to definition">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                       </button>
                     </div>
@@ -435,21 +435,18 @@
       });
     });
 
-    // Audio Voice Tutor Engine
+    // Audio Voice Tutor & Real-time Karaoke Engine
     let currentSpeechBtn = null;
+    let currentKaraokeContainer = null;
 
     function getFemaleVoice() {
       if (!('speechSynthesis' in window)) return null;
       let voices = window.speechSynthesis.getVoices();
       if (!voices || voices.length === 0) return null;
       
-      // Comprehensive regex to strictly block all known male and system default male voices
       const malePattern = /male|david|mark|alex|fred|daniel|oliver|george|bruce|tom|yuri|richard|ralph|albert|bad news|bahh|bells|boing|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox/i;
-
-      // Filter out male voices
       const nonMaleVoices = voices.filter(v => !malePattern.test(v.name));
 
-      // Preferred female names across macOS, iOS, Windows, Android, Chrome
       const femaleNames = [
         "siri",
         "samantha",
@@ -468,23 +465,18 @@
         "veena"
       ];
       
-      // 1. Check non-male voices for preferred female names
       for (const fn of femaleNames) {
         const match = nonMaleVoices.find(v => v.name.toLowerCase().includes(fn));
         if (match) return match;
       }
       
-      // 2. Fallback: Search for any voice with 'female' in name
       const femaleAttr = nonMaleVoices.find(v => v.name.toLowerCase().includes('female'));
       if (femaleAttr) return femaleAttr;
       
-      // 3. Fallback: Search for any non-male English voice
       const englishNonMale = nonMaleVoices.find(v => v.lang.startsWith('en'));
       if (englishNonMale) return englishNonMale;
       
-      // 4. Fallback: Any non-male voice
       if (nonMaleVoices.length > 0) return nonMaleVoices[0];
-      
       return null;
     }
 
@@ -494,10 +486,48 @@
       };
     }
 
+    function prepareKaraokeText(container) {
+      if (!container) return;
+      if (!container.dataset.originalHtml) {
+        container.dataset.originalHtml = container.innerHTML;
+      }
+      
+      const rawText = container.innerText;
+      let html = '';
+      let charOffset = 0;
+      const tokens = rawText.split(/(\s+)/);
+
+      tokens.forEach(token => {
+        if (/^\s+$/.test(token)) {
+          html += token;
+          charOffset += token.length;
+        } else if (token.length > 0) {
+          const start = charOffset;
+          const end = charOffset + token.length;
+          html += `<span class="speech-word speech-word-unread" data-start="${start}" data-end="${end}">${token}</span>`;
+          charOffset += token.length;
+        }
+      });
+
+      container.innerHTML = html;
+      currentKaraokeContainer = container;
+    }
+
+    function resetKaraokeText() {
+      if (currentKaraokeContainer) {
+        if (currentKaraokeContainer.dataset.originalHtml) {
+          currentKaraokeContainer.innerHTML = currentKaraokeContainer.dataset.originalHtml;
+          delete currentKaraokeContainer.dataset.originalHtml;
+        }
+        currentKaraokeContainer = null;
+      }
+    }
+
     function stopActiveSpeech() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
+      resetKaraokeText();
       if (currentSpeechBtn) {
         currentSpeechBtn.classList.remove('playing');
         
@@ -509,7 +539,7 @@
       }
     }
 
-    function speakText(rawText, btnElement) {
+    function speakText(rawText, btnElement, targetContainer = null) {
       if (!('speechSynthesis' in window)) {
         alert("Audio Voice Tutor is not supported in this browser.");
         return;
@@ -529,6 +559,10 @@
 
       if (!cleanText) return;
 
+      if (targetContainer) {
+        prepareKaraokeText(targetContainer);
+      }
+
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.rate = 1.05;  // Clear, relaxed, easy-to-follow pace
 
@@ -537,8 +571,7 @@
         utterance.voice = femaleVoice;
         utterance.pitch = 1.15; // Natural Siri female voice tone
       } else {
-        // High pitch shift to ensure audio pitch frequency sounds female
-        utterance.pitch = 1.45;
+        utterance.pitch = 1.45; // High pitch shift fallback
       }
 
       utterance.onstart = () => {
@@ -546,6 +579,27 @@
         btnElement.classList.add('playing');
         if (btnElement.id === 'btn-read-guide') {
           document.getElementById('read-guide-label').textContent = "Pause Narration";
+        }
+      };
+
+      utterance.onboundary = (event) => {
+        if (event.name === 'word' && currentKaraokeContainer) {
+          const charIndex = event.charIndex;
+          const spans = currentKaraokeContainer.querySelectorAll('.speech-word');
+          
+          spans.forEach(span => {
+            const start = parseInt(span.dataset.start, 10);
+            const end = parseInt(span.dataset.end, 10);
+            
+            if (charIndex >= start && charIndex < end) {
+              span.className = 'speech-word speech-word-active';
+              span.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (start < charIndex) {
+              span.className = 'speech-word speech-word-read';
+            } else {
+              span.className = 'speech-word speech-word-unread';
+            }
+          });
         }
       };
 
@@ -561,9 +615,9 @@
     }
 
     function toggleReadGuide(btnElement) {
-      const guideText = document.getElementById('guide-content-content').innerText;
-      if (!guideText || guideText.trim() === "") return;
-      speakText(guideText, btnElement);
+      const guideContainer = document.getElementById('guide-content-content');
+      if (!guideContainer || !guideContainer.innerText.trim()) return;
+      speakText(guideContainer.innerText, btnElement, guideContainer);
     }
 
     // Tab switching logic (Sidebar views)
@@ -761,7 +815,7 @@
       voiceBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
       voiceBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        speakText(text, voiceBtn);
+        speakText(textSpan.innerText, voiceBtn, textSpan);
       });
       
       bubble.appendChild(voiceBtn);

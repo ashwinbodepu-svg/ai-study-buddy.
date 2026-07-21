@@ -1826,3 +1826,30 @@ body {
   background: var(--accent-color);
   color: var(--bg-secondary);
 }
+
+/* Real-time Karaoke Word Highlighting */
+.speech-word {
+  transition: all 0.15s ease;
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0 2px;
+}
+
+.speech-word-read {
+  color: var(--text-light-muted);
+  opacity: 0.55;
+}
+
+.speech-word-active {
+  color: var(--accent-light) !important;
+  background-color: var(--accent-glow) !important;
+  box-shadow: 0 0 10px var(--accent-glow);
+  font-weight: 700 !important;
+  transform: scale(1.08);
+  opacity: 1 !important;
+}
+
+.speech-word-unread {
+  color: var(--text-light-primary);
+  opacity: 1;
+}
