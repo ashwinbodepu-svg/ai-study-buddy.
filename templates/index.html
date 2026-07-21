@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Study Buddy - Dashboard</title>
+  <title>AI Study Buddy</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
@@ -15,12 +18,10 @@
 
   <!-- Left Sidebar Navigation -->
   <aside class="sidebar">
-    <!-- Serif Gold Logo -->
-    <div class="logo-container">
-      <div class="logo-text-stacked">
-        <span class="logo-word-top">Study</span>
-        <span class="logo-word-bottom">Buddy</span>
-      </div>
+    <!-- SB Stacked Cards Gold Logo -->
+    <div class="logo-container" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0;">
+      <img src="{{ url_for('static', filename='logo-icon.svg') }}" alt="AI Study Buddy Logo" width="34" height="34">
+      <span style="font-size: 1.25rem; font-weight: 800; color: var(--accent-light); letter-spacing: -0.3px;">AI Study Buddy</span>
     </div>
 
     <!-- Sidebar Menu Options -->

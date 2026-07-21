@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="28" fill="#0c1410"/>
+  <!-- Card 3 (back outline) -->
+  <rect x="44" y="24" width="54" height="74" rx="9" fill="none" stroke="#d4af37" stroke-width="4.5" transform="rotate(14 71 61)"/>
+  <!-- Card 2 (middle outline) -->
+  <rect x="34" y="24" width="54" height="74" rx="9" fill="none" stroke="#d4af37" stroke-width="4.5" transform="rotate(7 61 61)"/>
+  <!-- Card 1 (front solid gold) -->
+  <rect x="20" y="26" width="54" height="74" rx="9" fill="#d4af37"/>
+  <!-- SB Monogram Text -->
+  <text x="47" y="72" font-weight="900" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#0c1410" text-anchor="middle">SB</text>
+</svg>
