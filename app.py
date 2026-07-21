@@ -242,8 +242,9 @@ def generate_guide():
             "1. Executive Summary (a high-level overview of the material)\n"
             "2. Core Concepts & Theories (detailed breakdown of major topics)\n"
             "3. Key Terms & Definitions (glossary of essential terminology)\n"
-            "4. Important Timelines or Formulas (if applicable to the subject matter)\n\n"
-            "Ensure the formatting is clean, professional, and easy to read. Use markdown headers, bullet points, and bold text.\n\n"
+            "4. Common Exam Pitfalls & Misconceptions (tricky definitions, frequent mistakes, and trick questions to avoid on exams)\n"
+            "5. Important Timelines or Formulas (if applicable to the subject matter)\n\n"
+            "Ensure the formatting is clean, professional, and easy to read. Use markdown headers (e.g. ## 4. Common Exam Pitfalls & Misconceptions), bullet points, and bold text.\n\n"
             f"STUDY NOTES:\n{text}"
         )
         
