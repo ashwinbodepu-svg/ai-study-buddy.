@@ -441,30 +441,48 @@
     function getFemaleVoice() {
       if (!('speechSynthesis' in window)) return null;
       const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return null;
       
-      // Preferred female voice identifiers (Google UK/US Female, Samantha, Victoria, Zira)
-      const preferred = [
+      // Strict list of male names to exclude completely
+      const isMale = (name) => {
+        const lower = name.toLowerCase();
+        return lower.includes('male') || lower.includes('david') || lower.includes('mark') || 
+               lower.includes('alex') || lower.includes('fred') || lower.includes('daniel') || 
+               lower.includes('oliver') || lower.includes('george') || lower.includes('bruce') ||
+               lower.includes('tom') || lower.includes('yuri');
+      };
+
+      // Priority Siri & Google Female Voice identifiers
+      const femalePriority = [
+        "Siri",
         "Google UK English Female",
         "Google US English Female",
         "Google US English",
         "Samantha",
         "Victoria",
         "Karen",
-        "Zira",
-        "Moira",
-        "Fiona"
+        "Microsoft Jenny",
+        "Microsoft Aria",
+        "Microsoft Zira",
+        "Fiona",
+        "Moira"
       ];
       
-      for (const prefName of preferred) {
-        const found = voices.find(v => v.name.includes(prefName));
+      // 1. Check priority female / Siri voices (rejecting male names)
+      for (const prefName of femalePriority) {
+        const found = voices.find(v => v.name.includes(prefName) && !isMale(v.name));
         if (found) return found;
       }
       
-      const femaleFallback = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
+      // 2. Fallback: Search for any English voice with 'female' in name
+      const femaleFallback = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female') && !isMale(v.name));
       if (femaleFallback) return femaleFallback;
       
-      const englishFallback = voices.find(v => v.lang.startsWith('en'));
-      return englishFallback || (voices.length > 0 ? voices[0] : null);
+      // 3. Fallback: Search for any non-male English voice
+      const nonMaleEnglish = voices.find(v => v.lang.startsWith('en') && !isMale(v.name));
+      if (nonMaleEnglish) return nonMaleEnglish;
+      
+      return voices[0];
     }
 
     if ('speechSynthesis' in window) {
@@ -509,8 +527,9 @@
       if (!cleanText) return;
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.05;
+      // Conversational Siri iPhone speed and pitch settings
+      utterance.rate = 1.18;  // Siri natural reading pace
+      utterance.pitch = 1.12; // Natural female Siri voice tone
 
       const femaleVoice = getFemaleVoice();
       if (femaleVoice) {
