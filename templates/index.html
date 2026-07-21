@@ -438,6 +438,41 @@
     // Audio Voice Tutor Engine
     let currentSpeechBtn = null;
 
+    function getFemaleVoice() {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Preferred female voice identifiers (Google UK/US Female, Samantha, Victoria, Zira)
+      const preferred = [
+        "Google UK English Female",
+        "Google US English Female",
+        "Google US English",
+        "Samantha",
+        "Victoria",
+        "Karen",
+        "Zira",
+        "Moira",
+        "Fiona"
+      ];
+      
+      for (const prefName of preferred) {
+        const found = voices.find(v => v.name.includes(prefName));
+        if (found) return found;
+      }
+      
+      const femaleFallback = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
+      if (femaleFallback) return femaleFallback;
+      
+      const englishFallback = voices.find(v => v.lang.startsWith('en'));
+      return englishFallback || (voices.length > 0 ? voices[0] : null);
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        getFemaleVoice();
+      };
+    }
+
     function stopActiveSpeech() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -475,7 +510,12 @@
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.rate = 1.0;
-      utterance.pitch = 1.0;
+      utterance.pitch = 1.05;
+
+      const femaleVoice = getFemaleVoice();
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
 
       utterance.onstart = () => {
         currentSpeechBtn = btnElement;
