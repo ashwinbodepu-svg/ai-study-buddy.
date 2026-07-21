@@ -496,6 +496,7 @@
       let html = '';
       let charOffset = 0;
       const tokens = rawText.split(/(\s+)/);
+      const wordMap = [];
 
       tokens.forEach(token => {
         if (/^\s+$/.test(token)) {
@@ -505,11 +506,20 @@
           const start = charOffset;
           const end = charOffset + token.length;
           html += `<span class="speech-word speech-word-unread" data-start="${start}" data-end="${end}">${token}</span>`;
+          wordMap.push({ start, end, span: null });
           charOffset += token.length;
         }
       });
 
       container.innerHTML = html;
+      
+      // Pre-cache span DOM elements in memory for instant zero-lag access
+      const spans = container.querySelectorAll('.speech-word');
+      spans.forEach((span, idx) => {
+        if (wordMap[idx]) wordMap[idx].span = span;
+      });
+
+      container._wordMap = wordMap;
       currentKaraokeContainer = container;
     }
 
@@ -519,6 +529,7 @@
           currentKaraokeContainer.innerHTML = currentKaraokeContainer.dataset.originalHtml;
           delete currentKaraokeContainer.dataset.originalHtml;
         }
+        delete currentKaraokeContainer._wordMap;
         currentKaraokeContainer = null;
       }
     }
@@ -563,55 +574,77 @@
         prepareKaraokeText(targetContainer);
       }
 
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = 1.05;  // Clear, relaxed, easy-to-follow pace
-
-      const femaleVoice = getFemaleVoice();
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
-        utterance.pitch = 1.15; // Natural Siri female voice tone
-      } else {
-        utterance.pitch = 1.45; // High pitch shift fallback
+      // Sentence-chunking: break long text into short 1-sentence utterances to eliminate browser audio buffer lag
+      const sentenceRegex = /[^.!?\n]+[.!?\n]*/g;
+      let chunks = cleanText.match(sentenceRegex);
+      if (!chunks || chunks.length === 0) {
+        chunks = [cleanText];
       }
 
-      utterance.onstart = () => {
-        currentSpeechBtn = btnElement;
-        btnElement.classList.add('playing');
-        if (btnElement.id === 'btn-read-guide') {
-          document.getElementById('read-guide-label').textContent = "Pause Narration";
-        }
-      };
+      let cumulativeCharOffset = 0;
+      const femaleVoice = getFemaleVoice();
 
-      utterance.onboundary = (event) => {
-        if (event.name === 'word' && currentKaraokeContainer) {
-          const charIndex = event.charIndex;
-          const spans = currentKaraokeContainer.querySelectorAll('.speech-word');
-          
-          spans.forEach(span => {
-            const start = parseInt(span.dataset.start, 10);
-            const end = parseInt(span.dataset.end, 10);
-            
-            if (charIndex >= start && charIndex < end) {
-              span.className = 'speech-word speech-word-active';
-              span.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else if (start < charIndex) {
-              span.className = 'speech-word speech-word-read';
-            } else {
-              span.className = 'speech-word speech-word-unread';
+      chunks.forEach((chunkText, index) => {
+        const utterance = new SpeechSynthesisUtterance(chunkText);
+        utterance.rate = 1.05;  // Clear, relaxed pace
+
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+          utterance.pitch = 1.15; // Natural female voice tone
+        } else {
+          utterance.pitch = 1.45;
+        }
+
+        const chunkOffset = cumulativeCharOffset;
+        cumulativeCharOffset += chunkText.length;
+
+        if (index === 0) {
+          utterance.onstart = () => {
+            currentSpeechBtn = btnElement;
+            btnElement.classList.add('playing');
+            if (btnElement.id === 'btn-read-guide') {
+              document.getElementById('read-guide-label').textContent = "Pause Narration";
             }
-          });
+          };
         }
-      };
 
-      utterance.onend = () => {
-        stopActiveSpeech();
-      };
+        utterance.addEventListener('boundary', (event) => {
+          if (event.name === 'word' && currentKaraokeContainer && currentKaraokeContainer._wordMap) {
+            const absoluteCharIndex = chunkOffset + event.charIndex;
+            const wordMap = currentKaraokeContainer._wordMap;
+            
+            const activeIdx = wordMap.findIndex(w => absoluteCharIndex >= w.start && absoluteCharIndex < w.end);
+            
+            if (activeIdx !== -1) {
+              wordMap.forEach((w, idx) => {
+                if (!w.span) return;
+                if (idx === activeIdx) {
+                  if (!w.span.classList.contains('speech-word-active')) {
+                    w.span.className = 'speech-word speech-word-active';
+                    w.span.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                  }
+                } else if (idx < activeIdx) {
+                  w.span.className = 'speech-word speech-word-read';
+                } else {
+                  w.span.className = 'speech-word speech-word-unread';
+                }
+              });
+            }
+          }
+        });
 
-      utterance.onerror = () => {
-        stopActiveSpeech();
-      };
+        if (index === chunks.length - 1) {
+          utterance.onend = () => {
+            stopActiveSpeech();
+          };
+        }
 
-      window.speechSynthesis.speak(utterance);
+        utterance.onerror = () => {
+          stopActiveSpeech();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      });
     }
 
     function toggleReadGuide(btnElement) {
