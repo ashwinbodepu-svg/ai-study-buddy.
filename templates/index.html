@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Study Buddy - Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
 <body>
+
+  <!-- Ambient Floating Glow Background Orbs -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
 
   <!-- Left Sidebar Navigation -->
   <aside class="sidebar">
@@ -78,6 +83,16 @@
         </svg>
         New Session
       </button>
+
+      <!-- Live Theme Customizer Dots -->
+      <div class="theme-selector-container">
+        <span class="theme-selector-label">Theme</span>
+        <div class="theme-dots-row">
+          <button type="button" class="theme-dot-btn dot-gold active" onclick="setTheme('gold')" title="Gold & Obsidian"></button>
+          <button type="button" class="theme-dot-btn dot-emerald" onclick="setTheme('emerald')" title="Neon Emerald"></button>
+          <button type="button" class="theme-dot-btn dot-indigo" onclick="setTheme('indigo')" title="Electric Indigo"></button>
+        </div>
+      </div>
     </div>
   </aside>
 
@@ -518,10 +533,21 @@
       renderSpacedCard();
     }
 
+    function triggerConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      }
+    }
+
     function showFlashcardCelebration() {
       updateMasteryProgress();
       document.getElementById('flashcard-learning-area').style.display = 'none';
       document.getElementById('flashcard-celebration-area').style.display = 'block';
+      triggerConfetti();
     }
 
     function restartFlashcardDeck() {
@@ -942,6 +968,7 @@
       let feedback = "Keep practicing! Review your study notes and try again.";
       if (percent === 100) {
         feedback = "Perfect score! Outstanding work!";
+        triggerConfetti();
       } else if (percent >= 75) {
         feedback = "Excellent job! You have mastered these concepts!";
       } else if (percent >= 50) {
@@ -961,6 +988,32 @@
 
     function retakeInteractiveQuiz() {
       renderQuizResult(currentQuizData);
+    }
+
+    // Live Theme Customizer Logic
+    function setTheme(themeName) {
+      document.body.classList.remove('theme-emerald', 'theme-indigo');
+      
+      const dots = document.querySelectorAll('.theme-dot-btn');
+      dots.forEach(d => d.classList.remove('active'));
+      
+      if (themeName === 'emerald') {
+        document.body.classList.add('theme-emerald');
+        document.querySelector('.dot-emerald').classList.add('active');
+      } else if (themeName === 'indigo') {
+        document.body.classList.add('theme-indigo');
+        document.querySelector('.dot-indigo').classList.add('active');
+      } else {
+        document.querySelector('.dot-gold').classList.add('active');
+      }
+      
+      localStorage.setItem('study_buddy_theme', themeName);
+    }
+    
+    // Load saved theme on boot
+    const savedTheme = localStorage.getItem('study_buddy_theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
     }
 
     // Add programmatic event listeners to flashcard controls to bypass 3D transform issues

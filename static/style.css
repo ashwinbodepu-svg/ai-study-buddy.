@@ -28,6 +28,57 @@
   --font-serif: 'Playfair Display', Georgia, serif;
 }
 
+/* Theme Presets */
+body.theme-emerald {
+  --accent-color: #10b981;
+  --accent-light: #6ee7b7;
+  --accent-dark: #059669;
+  --accent-glow: rgba(16, 185, 129, 0.25);
+}
+
+body.theme-indigo {
+  --accent-color: #6366f1;
+  --accent-light: #a5b4fc;
+  --accent-dark: #4338ca;
+  --accent-glow: rgba(99, 102, 241, 0.25);
+}
+
+/* Floating Ambient Glow Orbs */
+.ambient-glow-1, .ambient-glow-2 {
+  position: fixed;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-color) 0%, transparent 70%);
+  opacity: 0.12;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.5s ease;
+}
+
+.ambient-glow-1 {
+  top: -100px;
+  right: -100px;
+  animation: floatGlow1 14s ease-in-out infinite alternate;
+}
+
+.ambient-glow-2 {
+  bottom: -150px;
+  left: 200px;
+  animation: floatGlow2 18s ease-in-out infinite alternate;
+}
+
+@keyframes floatGlow1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-80px, 80px) scale(1.2); }
+}
+
+@keyframes floatGlow2 {
+  0% { transform: translate(0, 0) scale(1.1); }
+  100% { transform: translate(100px, -60px) scale(0.9); }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -1666,3 +1717,50 @@ body {
   50% { transform: translateY(-12px); }
   100% { transform: translateY(0px); }
 }
+
+/* Theme Selector Dots in Sidebar */
+.theme-selector-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-dark);
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.theme-selector-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-light-secondary);
+}
+
+.theme-dots-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.theme-dot-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.theme-dot-btn:hover {
+  transform: scale(1.25);
+}
+
+.theme-dot-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+.dot-gold { background-color: #c9a15a; }
+.dot-emerald { background-color: #10b981; }
+.dot-indigo { background-color: #6366f1; }
