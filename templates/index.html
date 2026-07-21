@@ -440,49 +440,52 @@
 
     function getFemaleVoice() {
       if (!('speechSynthesis' in window)) return null;
-      const voices = window.speechSynthesis.getVoices();
+      let voices = window.speechSynthesis.getVoices();
       if (!voices || voices.length === 0) return null;
       
-      // Strict list of male names to exclude completely
-      const isMale = (name) => {
-        const lower = name.toLowerCase();
-        return lower.includes('male') || lower.includes('david') || lower.includes('mark') || 
-               lower.includes('alex') || lower.includes('fred') || lower.includes('daniel') || 
-               lower.includes('oliver') || lower.includes('george') || lower.includes('bruce') ||
-               lower.includes('tom') || lower.includes('yuri');
-      };
+      // Comprehensive regex to strictly block all known male and system default male voices
+      const malePattern = /male|david|mark|alex|fred|daniel|oliver|george|bruce|tom|yuri|richard|ralph|albert|bad news|bahh|bells|boing|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox/i;
 
-      // Priority Siri & Google Female Voice identifiers
-      const femalePriority = [
-        "Siri",
-        "Google UK English Female",
-        "Google US English Female",
-        "Google US English",
-        "Samantha",
-        "Victoria",
-        "Karen",
-        "Microsoft Jenny",
-        "Microsoft Aria",
-        "Microsoft Zira",
-        "Fiona",
-        "Moira"
+      // Filter out male voices
+      const nonMaleVoices = voices.filter(v => !malePattern.test(v.name));
+
+      // Preferred female names across macOS, iOS, Windows, Android, Chrome
+      const femaleNames = [
+        "siri",
+        "samantha",
+        "victoria",
+        "karen",
+        "google uk english female",
+        "google us english female",
+        "google us english",
+        "microsoft jenny",
+        "microsoft aria",
+        "microsoft zira",
+        "microsoft hazel",
+        "fiona",
+        "moira",
+        "tessa",
+        "veena"
       ];
       
-      // 1. Check priority female / Siri voices (rejecting male names)
-      for (const prefName of femalePriority) {
-        const found = voices.find(v => v.name.includes(prefName) && !isMale(v.name));
-        if (found) return found;
+      // 1. Check non-male voices for preferred female names
+      for (const fn of femaleNames) {
+        const match = nonMaleVoices.find(v => v.name.toLowerCase().includes(fn));
+        if (match) return match;
       }
       
-      // 2. Fallback: Search for any English voice with 'female' in name
-      const femaleFallback = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female') && !isMale(v.name));
-      if (femaleFallback) return femaleFallback;
+      // 2. Fallback: Search for any voice with 'female' in name
+      const femaleAttr = nonMaleVoices.find(v => v.name.toLowerCase().includes('female'));
+      if (femaleAttr) return femaleAttr;
       
       // 3. Fallback: Search for any non-male English voice
-      const nonMaleEnglish = voices.find(v => v.lang.startsWith('en') && !isMale(v.name));
-      if (nonMaleEnglish) return nonMaleEnglish;
+      const englishNonMale = nonMaleVoices.find(v => v.lang.startsWith('en'));
+      if (englishNonMale) return englishNonMale;
       
-      return voices[0];
+      // 4. Fallback: Any non-male voice
+      if (nonMaleVoices.length > 0) return nonMaleVoices[0];
+      
+      return null;
     }
 
     if ('speechSynthesis' in window) {
@@ -527,13 +530,15 @@
       if (!cleanText) return;
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      // Conversational Siri iPhone speed and pitch settings
-      utterance.rate = 1.18;  // Siri natural reading pace
-      utterance.pitch = 1.12; // Natural female Siri voice tone
+      utterance.rate = 1.18;  // Conversational Siri iPhone pace
 
       const femaleVoice = getFemaleVoice();
       if (femaleVoice) {
         utterance.voice = femaleVoice;
+        utterance.pitch = 1.15; // Natural Siri female voice tone
+      } else {
+        // High pitch shift to ensure audio pitch frequency sounds female
+        utterance.pitch = 1.45;
       }
 
       utterance.onstart = () => {
