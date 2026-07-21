@@ -236,11 +236,21 @@
               <div class="flashcard-view" id="flashcard-view" onclick="toggleCardFlip()">
                 <div class="flashcard">
                   <div class="flashcard-front">
-                    <span class="flashcard-badge">Front Side</span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                      <span class="flashcard-badge">Front Side</span>
+                      <button type="button" class="chat-voice-btn" onclick="event.stopPropagation(); speakText(document.getElementById('flashcard-front-content').textContent, this)" title="Listen to concept">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                      </button>
+                    </div>
                     <p class="flashcard-content" id="flashcard-front-content">Flashcard Front Text</p>
                   </div>
                   <div class="flashcard-back">
-                    <span class="flashcard-badge">Back Side</span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                      <span class="flashcard-badge">Back Side</span>
+                      <button type="button" class="chat-voice-btn" onclick="event.stopPropagation(); speakText(document.getElementById('flashcard-back-content').textContent, this)" title="Listen to definition">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                      </button>
+                    </div>
                     <p class="flashcard-content" id="flashcard-back-content">Flashcard Back Text</p>
                   </div>
                 </div>
@@ -396,7 +406,13 @@
 
         <!-- Guide Results -->
         <div id="result-guide" class="result-card">
-          <div class="result-header">Revision Study Guide</div>
+          <div class="result-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+            <span>Revision Study Guide</span>
+            <button type="button" class="voice-tutor-btn" id="btn-read-guide" onclick="toggleReadGuide(this)" style="margin-bottom: 0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span id="read-guide-label">Listen to Summary</span>
+            </button>
+          </div>
           <div class="guide-content-area" id="guide-content-content">
             <!-- Formatted HTML Guide goes here -->
           </div>
@@ -419,8 +435,77 @@
       });
     });
 
+    // Audio Voice Tutor Engine
+    let currentSpeechBtn = null;
+
+    function stopActiveSpeech() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (currentSpeechBtn) {
+        currentSpeechBtn.classList.remove('playing');
+        
+        const label = document.getElementById('read-guide-label');
+        if (label && currentSpeechBtn.id === 'btn-read-guide') {
+          label.textContent = "Listen to Summary";
+        }
+        currentSpeechBtn = null;
+      }
+    }
+
+    function speakText(rawText, btnElement) {
+      if (!('speechSynthesis' in window)) {
+        alert("Audio Voice Tutor is not supported in this browser.");
+        return;
+      }
+
+      if (currentSpeechBtn === btnElement && window.speechSynthesis.speaking) {
+        stopActiveSpeech();
+        return;
+      }
+
+      stopActiveSpeech();
+
+      const cleanText = rawText
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/[*#_`]/g, '')
+        .trim();
+
+      if (!cleanText) return;
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+
+      utterance.onstart = () => {
+        currentSpeechBtn = btnElement;
+        btnElement.classList.add('playing');
+        if (btnElement.id === 'btn-read-guide') {
+          document.getElementById('read-guide-label').textContent = "Pause Narration";
+        }
+      };
+
+      utterance.onend = () => {
+        stopActiveSpeech();
+      };
+
+      utterance.onerror = () => {
+        stopActiveSpeech();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleReadGuide(btnElement) {
+      const guideText = document.getElementById('guide-content-content').innerText;
+      if (!guideText || guideText.trim() === "") return;
+      speakText(guideText, btnElement);
+    }
+
     // Tab switching logic (Sidebar views)
     function switchTab(tabId) {
+      stopActiveSpeech();
+
       // Toggle nav menu selection styles
       document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
         item.classList.remove('active');
@@ -600,7 +685,22 @@
       const logList = document.getElementById('chat-log-list');
       const bubble = document.createElement('div');
       bubble.className = 'chat-message message-buddy';
-      bubble.textContent = text;
+      
+      const textSpan = document.createElement('span');
+      textSpan.textContent = text;
+      bubble.appendChild(textSpan);
+      
+      const voiceBtn = document.createElement('button');
+      voiceBtn.type = 'button';
+      voiceBtn.className = 'chat-voice-btn';
+      voiceBtn.title = 'Listen to answer';
+      voiceBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+      voiceBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speakText(text, voiceBtn);
+      });
+      
+      bubble.appendChild(voiceBtn);
       logList.appendChild(bubble);
       logList.scrollTop = logList.scrollHeight;
     }

@@ -1764,3 +1764,65 @@ body {
 .dot-gold { background-color: #c9a15a; }
 .dot-emerald { background-color: #10b981; }
 .dot-indigo { background-color: #6366f1; }
+
+/* Voice Tutor Audio Buttons & Soundwave Animations */
+.voice-tutor-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-tertiary);
+  color: var(--accent-light);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 1rem;
+}
+
+.voice-tutor-btn:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 12px var(--accent-glow);
+  color: #ffffff;
+}
+
+.voice-tutor-btn.playing {
+  background-color: var(--accent-color);
+  color: var(--bg-secondary);
+  border-color: var(--accent-color);
+  animation: voicePulse 1.5s infinite alternate;
+}
+
+@keyframes voicePulse {
+  0% { box-shadow: 0 0 4px var(--accent-color); }
+  100% { box-shadow: 0 0 16px var(--accent-color); }
+}
+
+.chat-voice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--accent-light);
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.chat-voice-btn:hover {
+  background: var(--accent-color);
+  color: var(--bg-secondary);
+  transform: scale(1.15);
+}
+
+.chat-voice-btn.playing {
+  background: var(--accent-color);
+  color: var(--bg-secondary);
+}
